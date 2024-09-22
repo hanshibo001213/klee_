@@ -1,0 +1,15 @@
+digraph G {
+	size="10,7.5";
+	ratio=fill;
+	rotate=90;
+	center = "true";
+	node [style="filled",width=.1,height=.1,fontname="Terminus"]
+	edge [arrowsize=.3]
+	n0x2f9f440 [shape=diamond];
+	n0x2f9f440 -> n0x3167a10 [label=0b001];
+	n0x3167a10 [shape=diamond];
+	n0x3167a10 -> n0x2ff1e30 [label=0b000];
+	n0x3167a10 -> n0x31677a0 [label=0b001];
+	n0x31677a0 [shape=diamond,fillcolor=green];
+	n0x2ff1e30 [shape=diamond,fillcolor=green];
+}

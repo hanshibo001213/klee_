@@ -1,0 +1,35 @@
+digraph G {
+	size="10,7.5";
+	ratio=fill;
+	rotate=90;
+	center = "true";
+	node [style="filled",width=.1,height=.1,fontname="Terminus"]
+	edge [arrowsize=.3]
+	n0x2283e40 [shape=diamond];
+	n0x2283e40 -> n0x2282fc0 [label=0b001];
+	n0x2282fc0 [shape=diamond];
+	n0x2282fc0 -> n0x35222c0 [label=0b001];
+	n0x35222c0 [shape=diamond];
+	n0x35222c0 -> n0x33bd580 [label=0b001];
+	n0x33bd580 [shape=diamond];
+	n0x33bd580 -> n0x3679480 [label=0b001];
+	n0x3679480 [shape=diamond];
+	n0x3679480 -> n0x33bda00 [label=0b001];
+	n0x33bda00 [shape=diamond];
+	n0x33bda00 -> n0x3678c40 [label=0b001];
+	n0x3678c40 [shape=diamond];
+	n0x3678c40 -> n0x3643680 [label=0b001];
+	n0x3643680 [shape=diamond];
+	n0x3643680 -> n0x36bcf00 [label=0b001];
+	n0x36bcf00 [shape=diamond];
+	n0x36bcf00 -> n0x3642340 [label=0b001];
+	n0x3642340 [shape=diamond];
+	n0x3642340 -> n0x2283bc0 [label=0b001];
+	n0x2283bc0 [shape=diamond];
+	n0x2283bc0 -> n0x33bd680 [label=0b001];
+	n0x33bd680 [shape=diamond];
+	n0x33bd680 -> n0x3523d00 [label=0b001];
+	n0x3523d00 [shape=diamond];
+	n0x3523d00 -> n0x35231c0 [label=0b001];
+	n0x35231c0 [shape=diamond,fillcolor=green];
+}

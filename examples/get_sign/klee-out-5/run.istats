@@ -1,0 +1,52 @@
+version: 1
+creator: klee
+pid: 33515
+cmd: /home/klee/workdir/examples/get_sign/get_sign.bc
+
+
+positions: instr line
+event: Icov : CoveredInstructions
+event: Forks : Forks
+event: Ireal : InstructionRealTimes
+event: Itime : InstructionTimes
+event: I : Instructions
+event: UCdist : MinDistToUncovered
+event: Rtime : ResolveTime
+event: States : States
+event: Iuncov : UncoveredInstructions
+event: Q : Queries
+event: Qiv : QueriesInvalid
+event: Qv : QueriesValid
+event: Qtime : QueryTime
+events: Icov Forks Ireal Itime I UCdist Rtime States Iuncov Q Qiv Qv Qtime 
+ob=assembly.ll
+fl=get_sign.c
+fn=get_sign
+11 7 0 0 0 0 0 1 0 0 1 0 0 0 0 
+12 7 0 0 0 0 0 1 0 0 1 0 0 0 0 
+13 7 0 0 0 0 0 1 0 0 1 0 0 0 0 
+14 7 0 0 0 0 0 1 0 0 1 0 0 0 0 
+15 8 0 0 0 0 0 1 0 0 1 0 0 0 0 
+16 8 0 0 0 0 0 1 0 0 1 0 0 0 0 
+17 8 0 0 0 0 0 1 0 0 1 0 0 0 0 
+20 9 0 0 0 0 0 1 0 0 1 0 0 0 0 
+21 9 0 0 0 0 0 1 0 0 1 0 0 0 0 
+24 11 0 0 0 0 0 1 0 0 1 0 0 0 0 
+25 11 0 0 0 0 0 1 0 0 1 0 0 0 0 
+26 11 0 0 0 0 0 1 0 0 1 0 0 0 0 
+29 12 0 0 0 0 0 1 0 0 1 0 0 0 0 
+30 12 0 0 0 0 0 1 0 0 1 0 0 0 0 
+33 14 0 0 0 0 0 1 0 0 1 0 0 0 0 
+34 14 0 0 0 0 0 1 0 0 1 0 0 0 0 
+37 15 0 0 0 0 0 1 0 0 1 0 0 0 0 
+38 15 0 0 0 0 0 1 0 0 1 0 0 0 0 
+fn=main
+47 17 1 0 0 0 1 1 0 0 0 0 0 0 0 
+48 17 0 0 0 0 0 1 0 1 1 0 0 0 0 
+49 17 0 0 0 0 0 1 0 0 1 0 0 0 0 
+50 18 0 0 0 0 0 1 0 0 1 0 0 0 0 
+51 19 0 0 0 0 0 1 0 0 1 0 0 0 0 
+52 19 0 0 0 0 0 1 0 0 1 0 0 0 0 
+53 20 0 0 0 0 0 1 0 0 1 0 0 0 0 
+54 20 0 0 0 0 0 1 0 0 1 0 0 0 0 
+55 20 0 0 0 0 0 1 0 0 1 0 0 0 0 

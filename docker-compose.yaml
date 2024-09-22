@@ -1,0 +1,19 @@
+version: "3.7"
+services:
+  development:
+    image: cychen2022/recolossus-ubuntu2204-development:latest
+    container_name: klee-ubuntu2204
+    volumes:
+      - .:/home/klee/workdir
+    hostname: klee-ubuntu2204
+    user: root
+    security_opt:
+      - seccomp:unconfined
+    entrypoint: bash -c "sudo service ssh restart && tail -f /dev/null"
+    build:
+      context: .
+      target: development
+      tags:
+        - cychen2022/klee-ubuntu2204-development:latest
+    # ports:
+    #   - "2222:22"

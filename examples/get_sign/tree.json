@@ -1,0 +1,11 @@
+[
+	{
+		"children" : [],
+		"constraints" : [],
+		"id" : 1,
+		"instsSinceCovNew" : 1,
+		"name" : "0x3afb440",
+		"pc1" : true,
+		"pc2" : "get_sign.c:17 0"
+	}
+]
