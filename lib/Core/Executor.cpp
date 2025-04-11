@@ -3559,51 +3559,26 @@ void Executor::doDumpStates() {
   updateStates(nullptr);
 }
 
-// bool checkNumberInFile(const std::string &filename, int number) {
-//   std::ifstream file(filename);
-//   if (!file.is_open()) {
-//     std::cout << "无法打开文件！" << std::endl;
-//     return false;
-//   }
-
-//   std::vector<int> numbers;
-//   std::string line;
-//   while (std::getline(file, line)) {
-//     int num = std::stoi(line); // 将每一行转换为数字
-//     numbers.push_back(num);    // 存储到数组中
-//   }
-
-//   auto it = std::find(numbers.begin(), numbers.end(), number);
-//   if (it != numbers.end()) {
-//     return true; // 数字存在于数组中
-//   }
-
-//   return false; // 数字不存在于数组中
-// }
-
 std::unordered_map<std::string, std::unordered_set<int>>
-    breakpoints; // 存储文件名和对应的断点行号
+    breakpoints; 
 std::unordered_map<std::string, std::unordered_set<int>>
-    coveredLines;                       // 存储已覆盖的行号
-std::mutex mtx;                         // 互斥锁，用于同步访问
-std::condition_variable cv;             // 条件变量，用于控制执行流
-bool continueExecution = false;         // 控制程序是否继续执行的标志
-bool initialBreakpointReceived = false; // 用于判断是否接收到至少一个断点
+    coveredLines; 
+std::mutex mtx;
+std::condition_variable cv; 
+bool continueExecution = false;
+bool initialBreakpointReceived = false; 
 bool listening = true;
 std::pair<std::string, int> lastExecutedLocation = {
-    "", -1}; // 用于存储上一次执行的文件路径和行号
-// std::unordered_set<int> executedLines; // 存储断点行号
+    "", -1};
 
-// 线程函数，监听并处理调试器适配器发送的命令
 void listenForCommands() {
   std::string command;
   while (listening) {
-    // 设置文件描述符集合
+
     fd_set readfds;
     FD_ZERO(&readfds);
-    FD_SET(STDIN_FILENO, &readfds); // 监控标准输入
+    FD_SET(STDIN_FILENO, &readfds);
 
-    // 设置超时时间为 2 秒
     struct timeval timeout;
     timeout.tv_sec = 2;
     timeout.tv_usec = 0;
@@ -3611,9 +3586,8 @@ void listenForCommands() {
     int activity = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
 
     if (activity > 0 && FD_ISSET(STDIN_FILENO, &readfds)) {
-      std::getline(std::cin, command); // 读取标准输入
+      std::getline(std::cin, command);
 
-      // 使用 JSONcpp 解析命令
       Json::Value parsedMessage;
       Json::CharReaderBuilder reader;
       std::string errors;
@@ -3622,12 +3596,11 @@ void listenForCommands() {
       if (!Json::parseFromStream(reader, commandStream, &parsedMessage,
                                  &errors)) {
         std::cerr << "Error parsing JSON: " << errors << std::endl;
-        continue; // 解析失败则继续等待新命令
+        continue;
       }
 
       std::lock_guard<std::mutex> lock(mtx);
 
-      // 处理 "breakpoint" 类型的消息
       if (parsedMessage["type"].asString() == "breakpoint") {
         const Json::Value breakpointsData = parsedMessage["data"];
         for (const auto &fileEntry : breakpointsData.getMemberNames()) {
@@ -3638,16 +3611,15 @@ void listenForCommands() {
             breakpoints[filePath].insert(lineNum);
           }
         }
-        // 如果这是首次接收到断点，通知主线程继续执行
+
         if (!initialBreakpointReceived) {
           initialBreakpointReceived = true;
           cv.notify_one();
         }
 
-        // 处理 "continue" 类型的消息
       } else if (parsedMessage["type"].asString() == "continue") {
         continueExecution = true;
-        cv.notify_one(); // 通知等待的线程继续执行
+        cv.notify_one(); 
       } else {
         std::cerr << "Unknown message type: "
                   << parsedMessage["type"].asString() << std::endl;
@@ -3737,10 +3709,8 @@ void Executor::run(ExecutionState &initialState) {
   std::vector<ExecutionState *> newStates(states.begin(), states.end());
   searcher->update(0, newStates, std::vector<ExecutionState *>());
 
-  // 启动监听线程
   std::thread commandListener(listenForCommands);
 
-  // 在进入主循环之前，等待首次断点的到来
   {
     std::unique_lock<std::mutex> lock(mtx);
     cv.wait(lock, [] { return initialBreakpointReceived; });
@@ -3755,89 +3725,20 @@ void Executor::run(ExecutionState &initialState) {
 
     const std::string filePath = ki->info->file;
 
-    // // 如果当前文件路径或行号与上次不同，则进行断点检查
-    // if (filePath != lastExecutedLocation.first ||
-    //     source_location != lastExecutedLocation.second) {
-    //   // 检查当前行是否为断点并处理暂停逻辑
-    //   std::unique_lock<std::mutex> lock(mtx);
-    //   // 同时判断文件路径和行号是否命中断点
-    //   if (breakpoints.find(filePath) != breakpoints.end() &&
-    //       breakpoints[filePath].find(source_location) !=
-    //           breakpoints[filePath].end()) {
-    //     Json::Value breakpoint(Json::objectValue);
-
-    //     // // ✅ 文件和行号
-    //     breakpoint["file"] = filePath;
-    //     breakpoint["line"] = source_location;
-
-    //     // // ✅ 调用栈
-    //     // Json::Value jsonCallStack(Json::arrayValue);
-    //     // const auto &stack = state.stack;
-
-    //     // for (size_t i = 0; i < stack.size(); ++i) {
-    //     //   const StackFrame &sf = stack[i];
-    //     //   Json::Value frame;
-
-    //     //   // 函数名
-    //     //   if (sf.kf && sf.kf->function) {
-    //     //     frame["func"] = sf.kf->function->getName().str();
-    //     //   } else {
-    //     //     frame["func"] = "[unknown]";
-    //     //   }
-
-    //     //   // 行号获取
-    //     //   KInstruction *inst = nullptr;
-    //     //   if (i == stack.size() - 1) {
-    //     //     inst = state.pc;
-    //     //   } else {
-    //     //     const StackFrame &next = stack[i + 1];
-    //     //     inst = next.caller;
-    //     //   }
-
-    //     //   if (inst && inst->info) {
-    //     //     frame["file"] = inst->info->file;
-    //     //     frame["line"] = inst->info->line;
-    //     //   } else {
-    //     //     frame["file"] = "[external]";
-    //     //     frame["line"] = 0;
-    //     //   }
-
-    //     //   jsonCallStack.append(frame);
-    //     // }
-
-    //     // ✅ 塞入 callstack 字段
-    //     // breakpoint["callstack"] = jsonCallStack;
-    //     breakpoint["type"] = "breakpoint";
-
-    //     // ✅ 输出
-    //     std::cout << breakpoint << std::endl;
-    //     cv.wait(lock, [] { return continueExecution; });
-    //     continueExecution = false; // 重置继续执行标志
-    //   }
-
-    //   // 更新最后一次执行的位置（文件路径和行号）
-    //   lastExecutedLocation = {filePath, source_location};
-    // }
-    // 如果当前文件路径或行号与上次不同，则进行断点检查
     if (filePath != lastExecutedLocation.first ||
         source_location != lastExecutedLocation.second) {
-      // 检查当前行是否为断点并处理暂停逻辑
+
       std::unique_lock<std::mutex> lock(mtx);
-      // 同时判断文件路径和行号是否命中断点
+
       if (breakpoints.find(filePath) != breakpoints.end() &&
           breakpoints[filePath].find(source_location) !=
               breakpoints[filePath].end()) {
-        // std::cout << "Hit breakpoint at line: " << source_location
-        // << " in file: " << filePath << std::endl;
 
         Json::Value breakpoint(Json::objectValue);
 
-        // ✅ 文件和行号
         breakpoint["file"] = filePath;
         breakpoint["line"] = source_location;
 
-        // std::cout << breakpoint << std::endl;
-        // ✅ 调用栈
         Json::Value jsonCallStack(Json::arrayValue);
         const auto &stack = state.stack;
 
@@ -3845,14 +3746,12 @@ void Executor::run(ExecutionState &initialState) {
           const StackFrame &sf = stack[i];
           Json::Value frame;
 
-          // 函数名
           if (sf.kf && sf.kf->function) {
             frame["func"] = sf.kf->function->getName().str();
           } else {
             frame["func"] = "[unknown]";
           }
 
-          // 行号获取
           KInstruction *inst = nullptr;
           if (i == stack.size() - 1) {
             inst = state.pc;
@@ -3875,54 +3774,19 @@ void Executor::run(ExecutionState &initialState) {
         }
         breakpoint["callstack"] = jsonCallStack;
 
-        // // ✅ 提取当前帧的变量值
-        // Json::Value vars(Json::objectValue);
-        // StackFrame &frame = state.stack.back();
-        // Function *fn = frame.kf->function;
-
-        // for (unsigned i = 0; i < frame.kf->numRegisters; ++i) {
-        //   ref<Expr> val = frame.locals[i].value;
-        //   if (!val.isNull()) {
-        //     std::string varName = "reg" + std::to_string(i);
-
-        //     // 遍历参数查找对应变量名
-        //     for (auto &arg : fn->args()) {
-        //       if (arg.getArgNo() == i) {
-        //         varName = arg.getName().str();
-        //         break;
-        //       }
-        //     }
-
-        //     if (!val.isNull()) {
-        //       SolverQueryMetaData meta; // 创建一个元信息容器
-        //       ref<ConstantExpr> concreteVal;
-
-        //       if (solver->getValue(state.constraints, val, concreteVal,
-        //       meta)) {
-        //         uint64_t value = concreteVal->getZExtValue();
-        //         vars[varName] = static_cast<Json::UInt64>(value);
-        //       }
-        //     }
-        //   }
-        // }
-
-        // breakpoint["variables"] = vars;
-
-        // ✅ 输出
         Json::StreamWriterBuilder writer;
-        writer["indentation"] = ""; // 不格式化，压缩成一行
+        writer["indentation"] = ""; 
         std::string breakpointStr = Json::writeString(writer, breakpoint);
         std::cout << breakpointStr << std::endl;
         cv.wait(lock, [] { return continueExecution; });
-        continueExecution = false; // 重置继续执行标志
+        continueExecution = false;
       }
-      // 更新最后一次执行的位置（文件路径和行号）
       lastExecutedLocation = {filePath, source_location};
     }
-    // 记录并输出覆盖的行号
+
     if (coveredLines[filePath]
             .insert(source_location)
-            .second) { // 仅当新覆盖行时输出
+            .second) { 
       std::cout << "Covered new line: " << source_location
                 << " in file: " << filePath << std::endl;
     }
@@ -3946,19 +3810,14 @@ void Executor::run(ExecutionState &initialState) {
       updateStates(nullptr);
     }
   }
-  //  // 主循环结束
-  //   std::cout << std::endl << "正确跳出了循环" << std::endl;
 
-  // 通知监听线程退出
   {
     std::lock_guard<std::mutex> lock(mtx);
     listening = false;
   }
-  cv.notify_one(); // 唤醒监听线程
+  cv.notify_one(); 
 
-  // 等待线程结束
   commandListener.join();
-  // std::cout << std::endl << "监听线程结束了" << std::endl;
 
   delete searcher;
   searcher = nullptr;
