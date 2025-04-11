@@ -76,7 +76,9 @@ public:
                              ExecutionState *state) noexcept;
   ~AnnotatedExecutionTreeNode() override = default;
 
-  [[nodiscard]] NodeType getType() const override { return NodeType::Annotated; }
+  [[nodiscard]] NodeType getType() const override {
+    return NodeType::Annotated;
+  }
 
   static bool classof(const ExecutionTreeNode *N) {
     return N->getType() == NodeType::Annotated;
@@ -97,12 +99,13 @@ public:
   virtual void attach(ExecutionTreeNode *node, ExecutionState *leftState,
                       ExecutionState *rightState, BranchType reason) = 0;
   /// Dump execution tree in .dot format into os (debug)
-  virtual void dump(llvm::raw_ostream &os) = 0;
+  // virtual void dump(llvm::raw_ostream &os) = 0;
+  virtual void dump() = 0;
   /// Remove node from tree
   virtual void remove(ExecutionTreeNode *node) = 0;
   /// Set termination type (on state removal)
   virtual void setTerminationType(ExecutionState &state,
-                                  StateTerminationType type){}
+                                  StateTerminationType type) {}
 
   virtual ~ExecutionTree() = default;
   ExecutionTree(ExecutionTree const &) = delete;
@@ -123,8 +126,10 @@ public:
   NoopExecutionTree() noexcept = default;
   ~NoopExecutionTree() override = default;
   void attach(ExecutionTreeNode *node, ExecutionState *leftState,
-              ExecutionState *rightState, BranchType reason) noexcept override {}
-  void dump(llvm::raw_ostream &os) noexcept override;
+              ExecutionState *rightState, BranchType reason) noexcept override {
+  }
+  // void dump(llvm::raw_ostream &os) noexcept override;
+  void dump() noexcept override;
   void remove(ExecutionTreeNode *node) noexcept override {}
 
   [[nodiscard]] ExecutionTreeType getType() const override {
@@ -147,18 +152,21 @@ private:
 
   virtual ExecutionTreeNode *createNode(ExecutionTreeNode *parent,
                                         ExecutionState *state);
-  virtual void updateBranchingNode(ExecutionTreeNode &node, BranchType reason) {}
+  virtual void updateBranchingNode(ExecutionTreeNode &node, BranchType reason) {
+  }
   virtual void updateTerminatingNode(ExecutionTreeNode &node) {}
 
 public:
   InMemoryExecutionTree() noexcept = default;
   explicit InMemoryExecutionTree(ExecutionState &initialState) noexcept;
+  void outputToStdout(const Json::Value &jsonTree);
   void writeToJsonFile(const std::string &filename);
   ~InMemoryExecutionTree() override = default;
 
   void attach(ExecutionTreeNode *node, ExecutionState *leftState,
               ExecutionState *rightState, BranchType reason) noexcept override;
-  void dump(llvm::raw_ostream &os) noexcept override;
+  // void dump(llvm::raw_ostream &os) noexcept override;
+  void dump() noexcept override;
   std::uint8_t getNextId() noexcept;
   void remove(ExecutionTreeNode *node) noexcept override;
   bool isSecondElementInJsonArray(Json::Value &jsonArray, std::string &value);
@@ -186,7 +194,8 @@ public:
   explicit PersistentExecutionTree(ExecutionState &initialState,
                                    InterpreterHandler &ih) noexcept;
   ~PersistentExecutionTree() override = default;
-  void dump(llvm::raw_ostream &os) noexcept override;
+  // void dump(llvm::raw_ostream &os) noexcept override;
+  void dump() noexcept override;
   void setTerminationType(ExecutionState &state,
                           StateTerminationType type) override;
 

@@ -1,11 +1,69 @@
 [
 	{
-		"children" : [],
+		"children" : 
+		[
+			"0x28797a0",
+			"0x2879590"
+		],
 		"constraints" : [],
 		"id" : 1,
 		"instsSinceCovNew" : 1,
-		"name" : "0x3afb440",
+		"name" : "0x2879200",
 		"pc1" : true,
-		"pc2" : "get_sign.c:17 0"
+		"pc2" : "[no debug info]"
+	},
+	{
+		"children" : [],
+		"constraints" : 
+		[
+			"a=0"
+		],
+		"id" : 1,
+		"instsSinceCovNew" : 1,
+		"name" : "0x2879590",
+		"pc1" : true,
+		"pc2" : "[no debug info]"
+	},
+	{
+		"children" : 
+		[
+			"0x28d4660",
+			"0x2956ed0"
+		],
+		"constraints" : 
+		[
+			"a!=0"
+		],
+		"id" : 2,
+		"instsSinceCovNew" : 1,
+		"name" : "0x28797a0",
+		"pc1" : true,
+		"pc2" : "[no debug info]"
+	},
+	{
+		"children" : [],
+		"constraints" : 
+		[
+			"a!=0",
+			"a<0"
+		],
+		"id" : 2,
+		"instsSinceCovNew" : 1,
+		"name" : "0x2956ed0",
+		"pc1" : true,
+		"pc2" : "[no debug info]"
+	},
+	{
+		"children" : [],
+		"constraints" : 
+		[
+			"a!=0",
+			"a>=0"
+		],
+		"id" : 3,
+		"instsSinceCovNew" : 1,
+		"name" : "0x28d4660",
+		"pc1" : true,
+		"pc2" : "[no debug info]"
 	}
 ]
